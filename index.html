@@ -33,7 +33,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 <body>
 <main id="app"></main>
 <script>
-var V=1;
+var V=2;
 (function(){try{fetch('version.json?t='+Date.now(),{cache:'no-store'}).then(function(r){return r.json()}).then(function(j){
 if(j&&j.v!==V){var k='gn_reload_'+j.v;if(!sessionStorage.getItem(k)){sessionStorage.setItem(k,'1');location.replace(location.pathname+'?v='+j.v+location.hash);}}
 }).catch(function(){});}catch(e){}})();
@@ -47,35 +47,41 @@ function h(str){var a=1779033703^str.length,b=3144134277,c=1013904242,d=27734807
 function room(c,seed){var W=CATS[CN[c]];return {imp:h(SALT+':i:'+seed)%3,word:W[h(SALT+':w:'+seed)%W.length]}}
 window.__room=room;
 function rnd(){var a=new Uint32Array(3);(window.crypto||window.msCrypto).getRandomValues(a);return Array.prototype.map.call(a,function(x){return x.toString(36)}).join('').slice(0,12)}
-function parseHash(){var m=/^#(\d)-([a-z0-9]{6,16})$/.exec(location.hash);if(!m)return null;var c=+m[1];if(c>=CN.length)return null;return {c:c,seed:m[2]}}
+function parseHash(){var m=/^#(\d)(\d{4})$/.exec(location.hash);if(m){var c=+m[1]-1;if(c<0||c>=CN.length)return null;return {c:c,seed:m[1]+m[2],code:m[1]+m[2]}}m=/^#(\d)-([a-z0-9]{6,16})$/.exec(location.hash);if(!m)return null;var c2=+m[1];if(c2>=CN.length)return null;return {c:c2,seed:m[2],code:null}}
+function rcode(c){var a=new Uint32Array(1);(window.crypto||window.msCrypto).getRandomValues(a);return String(c+1)+String(10000+a[0]%90000).slice(1)}
 var app=document.getElementById('app');var shown=false;
 function el(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e}
 function getName(seed){try{var v=localStorage.getItem('imp.n.'+seed);return v==null?null:+v}catch(e){return null}}
 function setName(seed,n){try{if(n==null)localStorage.removeItem('imp.n.'+seed);else localStorage.setItem('imp.n.'+seed,String(n))}catch(e){}}
-function newRoom(c){location.hash='#'+c+'-'+rnd();shown=false}
-function shareBox(){
-  var box=el('div','card');box.appendChild(el('div','label','لينك الروم، ابعته للباقي'));
-  var u=el('div','url',location.href);box.appendChild(u);
-  var b=el('button','ghost','نسخ اللينك');
-  b.onclick=function(){var done=function(){b.textContent='اتنسخ'};
-    if(navigator.share){navigator.share({url:location.href}).catch(function(){})}
-    else if(navigator.clipboard){navigator.clipboard.writeText(location.href).then(done,function(){})}
-    else{var r=document.createRange();r.selectNode(u);getSelection().removeAllRanges();getSelection().addRange(r);try{document.execCommand('copy');done()}catch(e){}}};
-  box.appendChild(b);return box}
+function newRoom(c){location.hash='#'+rcode(c);shown=false}
+function shareBox(R){
+  var box=el('div','card');
+  if(R.code){box.appendChild(el('div','label','رقم الروم، قولوه للباقي'));var cd=el('div','word',R.code);cd.style.direction='ltr';cd.style.letterSpacing='6px';box.appendChild(cd)}
+  else{box.appendChild(el('div','label','روم قديم بلينك'))}
+  return box}
+function joinBox(){
+  var box=el('div','card');box.appendChild(el('div','label','ادخل روم برقمه'));
+  var inp=document.createElement('input');inp.type='text';inp.inputMode='numeric';inp.maxLength=5;inp.placeholder='12345';
+  inp.style.cssText='width:100%;font-size:32px;text-align:center;direction:ltr;letter-spacing:6px;padding:12px;border-radius:14px;border:1px solid #3a3f52;background:#14161c;color:#f2f3f7;margin-bottom:12px';
+  var msg=el('div','label','');
+  var b=el('button','big','دخول');b.style.width='100%';
+  b.onclick=function(){var v=inp.value.replace(/\D/g,'');var c=+v.charAt(0)-1;if(v.length!==5||c<0||c>=CN.length){msg.textContent='الرقم لازم 5 أرقام صح';return}location.hash='#'+v;shown=false};
+  box.appendChild(inp);box.appendChild(b);box.appendChild(msg);return box}
 function draw(){
   app.innerHTML='';
   var R=parseHash();
   if(!R){
     app.appendChild(el('h1',0,'لعبة الإمبوستر'));
-    app.appendChild(el('p',0,'اعمل روم جديد: اختار القسم، وابعت اللينك للباقي.'));
+    app.appendChild(el('p',0,'اعمل روم جديد: اختار القسم، وقول الرقم للباقي.'));
     CN.forEach(function(n,i){var b=el('button','big',n);b.onclick=function(){newRoom(i)};app.appendChild(b)});
+    app.appendChild(joinBox());
     return}
   var name=getName(R.seed);
   if(name===null){
     app.appendChild(el('h1',0,'اختار اسمك'));
     app.appendChild(el('p',0,'القسم: '+CN[R.c]));
     NAMES.forEach(function(n,i){var b=el('button','big','أنا '+n);b.onclick=function(){setName(R.seed,i);shown=false;draw()};app.appendChild(b)});
-    app.appendChild(shareBox());
+    app.appendChild(shareBox(R));
     var nb=el('button','ghost','روم جديد');nb.onclick=function(){location.hash='';};app.appendChild(nb);
     return}
   var X=room(R.c,R.seed),isImp=X.imp===name;
@@ -88,7 +94,7 @@ function draw(){
     var hb=el('button','ghost','إخفاء');hb.onclick=function(){shown=false;draw()};c.appendChild(hb);app.appendChild(c)}
   app.appendChild(el('p',0,'اسألوا بعض في المكالمة من غير ما تقولوا الكلمة نفسها.'));
   var again=el('button','big','روم جديد بنفس القسم');again.onclick=function(){newRoom(R.c)};app.appendChild(again);
-  app.appendChild(shareBox());
+  app.appendChild(shareBox(R));
   var row=el('div','row');
   var hm=el('button','ghost','روم جديد بقسم تاني');hm.onclick=function(){location.hash=''};
   var cn=el('button','ghost','غيّر اسمي');cn.onclick=function(){setName(R.seed,null);shown=false;draw()};
