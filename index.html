@@ -3,6 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <meta name="robots" content="noindex,nofollow">
 <meta name="theme-color" content="#14161c">
 <title>لعبة الإمبوستر</title>
@@ -29,6 +32,12 @@ button{font:inherit;color:inherit;cursor:pointer}
 </head>
 <body>
 <main id="app"></main>
+<script>
+var V=1;
+(function(){try{fetch('version.json?t='+Date.now(),{cache:'no-store'}).then(function(r){return r.json()}).then(function(j){
+if(j&&j.v!==V){var k='gn_reload_'+j.v;if(!sessionStorage.getItem(k)){sessionStorage.setItem(k,'1');location.replace(location.pathname+'?v='+j.v+location.hash);}}
+}).catch(function(){});}catch(e){}})();
+</script>
 <script>
 (function(){
 var NAMES=['بلال','فادي','محمد'];
