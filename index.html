@@ -24,6 +24,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between}
 .round{font-size:15px;color:#aab0c0}
 .hide{display:none!important}
+.url{direction:ltr;word-break:break-all;font-size:14px;color:#aab0c0;margin-bottom:12px}
 </style>
 </head>
 <body>
@@ -34,55 +35,57 @@ var NAMES=['بلال','فادي','محمد'];
 var CATS={"الستة بتوعنا": ["🩲 الكلوت", "🩹 الألويز", "👙 البكيني", "🦿 الصناعي", "🐷 الخنزير", "🐶 الكلب"], "أكل": ["🍝 كشري", "🥘 فول", "🧆 طعمية", "🥬 ملوخية", "🫑 محشي", "🥧 فطيرة", "🍢 كباب", "🌯 شاورما", "🍕 بيتزا", "🍟 بطاطس", "🍮 أم علي", "🍯 كنافة", "🍚 رز بلبن", "🍰 بسبوسة", "🐟 سمك"], "أفلام": ["🕴️ الزعيم", "🤪 اللمبي", "إسماعيلية رايح جاي", "الإرهاب والكباب", "🐘 الفيل الأزرق", "🦁 الأسد الملك", "🐭 توم وجيري", "🚢 تيتانيك", "🧙 هاري بوتر", "🕷️ سبايدرمان", "☀️ شمس", "عسكر في المعسكر", "صعيدي في الجامعة الأمريكية", "🏝️ الجزيرة", "ولاد رزق"], "حيوانات": ["🦁 أسد", "🐘 فيل", "🦒 زرافة", "🐪 جمل", "🐴 حصان", "🐱 قطة", "🐊 تمساح", "🐍 ثعبان", "🐔 دجاجة", "🐄 بقرة", "🐑 خروف", "🐴 حمار", "🐵 قرد", "🐯 نمر", "🐻 دب"], "جمادات": ["🪑 كرسي", "🧊 تلاجة", "📱 تليفون", "🔑 مفتاح", "🪞 مراية", "🌀 مروحة", "🔩 مسمار", "🛏️ سرير", "⏰ ساعة", "👜 شنطة", "✂️ مقص", "🥄 ملعقة", "👓 نضارة", "🪥 فرشاة أسنان", "📺 تلفزيون", "🩴 شبشب"], "نباتات": ["🌴 نخلة", "🌹 وردة", "🌵 صبار", "🌿 نعناع", "🌼 ياسمين", "🌻 عباد الشمس", "🧅 بصل", "🍅 طماطم", "🥕 جزر", "🍌 موز", "🍊 برتقال", "🥭 مانجا", "🍉 بطيخ", "🍇 عنب", "🫒 زيتون"]};var CN=Object.keys(CATS);
 var SALT='de42263721f451b529654273';
 function h(str){var a=1779033703^str.length,b=3144134277,c=1013904242,d=2773480762;for(var i=0;i<str.length;i++){var k=str.charCodeAt(i);a=b^Math.imul(a^k,597399067);b=c^Math.imul(b^k,2869860233);c=d^Math.imul(c^k,951274213);d=a^Math.imul(d^k,2716044179)}a=Math.imul(c^(a>>>18),597399067);b=Math.imul(d^(b>>>22),2869860233);return (a^b^c^d)>>>0}
-function round(r,c){var WORDS=CATS[CN[c]];
-  var imp=h(SALT+':imp:'+r)%3;
-  // word order: a salted shuffle so words don't repeat until all are used
-  var idx=WORDS.map(function(_,i){return i});
-  var n=Math.floor((r-1)/WORDS.length),pos=(r-1)%WORDS.length;
-  for(var i=idx.length-1;i>0;i--){var j=h(SALT+':w:'+n+':'+i)%(i+1);var t=idx[i];idx[i]=idx[j];idx[j]=t}
-  return {imp:imp,word:WORDS[idx[pos]]};
-}
-window.__round=round;
-var S={name:null,r:1,cat:null,shown:false};
-try{var v=localStorage.getItem('imp.v2');if(v){var o=JSON.parse(v);S.name=o.name;S.r=o.r||1;S.cat=(o.cat==null?null:o.cat)}}catch(e){}
-function save(){try{localStorage.setItem('imp.v2',JSON.stringify({name:S.name,r:S.r,cat:S.cat}))}catch(e){}}
-var app=document.getElementById('app');
+function room(c,seed){var W=CATS[CN[c]];return {imp:h(SALT+':i:'+seed)%3,word:W[h(SALT+':w:'+seed)%W.length]}}
+window.__room=room;
+function rnd(){var a=new Uint32Array(3);(window.crypto||window.msCrypto).getRandomValues(a);return Array.prototype.map.call(a,function(x){return x.toString(36)}).join('').slice(0,12)}
+function parseHash(){var m=/^#(\d)-([a-z0-9]{6,16})$/.exec(location.hash);if(!m)return null;var c=+m[1];if(c>=CN.length)return null;return {c:c,seed:m[2]}}
+var app=document.getElementById('app');var shown=false;
 function el(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e}
+function getName(seed){try{var v=localStorage.getItem('imp.n.'+seed);return v==null?null:+v}catch(e){return null}}
+function setName(seed,n){try{if(n==null)localStorage.removeItem('imp.n.'+seed);else localStorage.setItem('imp.n.'+seed,String(n))}catch(e){}}
+function newRoom(c){location.hash='#'+c+'-'+rnd();shown=false}
+function shareBox(){
+  var box=el('div','card');box.appendChild(el('div','label','لينك الروم، ابعته للباقي'));
+  var u=el('div','url',location.href);box.appendChild(u);
+  var b=el('button','ghost','نسخ اللينك');
+  b.onclick=function(){var done=function(){b.textContent='اتنسخ'};
+    if(navigator.share){navigator.share({url:location.href}).catch(function(){})}
+    else if(navigator.clipboard){navigator.clipboard.writeText(location.href).then(done,function(){})}
+    else{var r=document.createRange();r.selectNode(u);getSelection().removeAllRanges();getSelection().addRange(r);try{document.execCommand('copy');done()}catch(e){}}};
+  box.appendChild(b);return box}
 function draw(){
   app.innerHTML='';
-  if(S.name===null){
+  var R=parseHash();
+  if(!R){
     app.appendChild(el('h1',0,'لعبة الإمبوستر'));
-    app.appendChild(el('p',0,'اختار اسمك. كل واحد على موبايله.'));
-    NAMES.forEach(function(n,i){var b=el('button','big','أنا '+n);b.onclick=function(){S.name=i;S.shown=false;save();draw()};app.appendChild(b)});
-    return;
-  }
-  if(S.cat===null){
-    app.appendChild(el('h1',0,'اختار القسم'));app.appendChild(el('p',0,'اتفقوا في المكالمة على قسم واحد، وكل واحد يختاره.'));
-    CN.forEach(function(n,i){var b=el('button','big',n);b.onclick=function(){S.cat=i;S.shown=false;save();draw()};app.appendChild(b)});return;}
-  var R=round(S.r,S.cat),isImp=R.imp===S.name;
-  app.appendChild(el('h1',0,'إنت '+NAMES[S.name]));
-  app.appendChild(el('p',0,'ده دورك السري. متوريش الشاشة لحد.'));
-  var top=el('div','row');
-  top.appendChild(el('span','round','القسم: '+CN[S.cat]+' | الجولة رقم '+S.r));
-  app.appendChild(top);
-  if(!S.shown){var t=el('button','tap','اضغط عشان تشوف');t.onclick=function(){S.shown=true;draw()};app.appendChild(t)}
-  else{
-    var c=el('div','card');
+    app.appendChild(el('p',0,'اعمل روم جديد: اختار القسم، وابعت اللينك للباقي.'));
+    CN.forEach(function(n,i){var b=el('button','big',n);b.onclick=function(){newRoom(i)};app.appendChild(b)});
+    return}
+  var name=getName(R.seed);
+  if(name===null){
+    app.appendChild(el('h1',0,'اختار اسمك'));
+    app.appendChild(el('p',0,'القسم: '+CN[R.c]));
+    NAMES.forEach(function(n,i){var b=el('button','big','أنا '+n);b.onclick=function(){setName(R.seed,i);shown=false;draw()};app.appendChild(b)});
+    app.appendChild(shareBox());
+    var nb=el('button','ghost','روم جديد');nb.onclick=function(){location.hash='';};app.appendChild(nb);
+    return}
+  var X=room(R.c,R.seed),isImp=X.imp===name;
+  app.appendChild(el('h1',0,'إنت '+NAMES[name]));
+  app.appendChild(el('p',0,'ده دورك السري. متوريش الشاشة لحد. القسم: '+CN[R.c]));
+  if(!shown){var t=el('button','tap','اضغط عشان تشوف');t.onclick=function(){shown=true;draw()};app.appendChild(t)}
+  else{var c=el('div','card');
     c.appendChild(el('div','label',isImp?'إنت':'الكلمة بتاعتك'));
-    c.appendChild(el('div','word'+(isImp?' imp':''),isImp?'الإمبوستر!':R.word));
-    var hb=el('button','ghost','إخفاء');hb.onclick=function(){S.shown=false;draw()};c.appendChild(hb);
-    app.appendChild(c);
-  }
+    c.appendChild(el('div','word'+(isImp?' imp':''),isImp?'الإمبوستر!':X.word));
+    var hb=el('button','ghost','إخفاء');hb.onclick=function(){shown=false;draw()};c.appendChild(hb);app.appendChild(c)}
   app.appendChild(el('p',0,'اسألوا بعض في المكالمة من غير ما تقولوا الكلمة نفسها.'));
-  var nb=el('button','big','جولة جديدة');
-  nb.onclick=function(){S.r++;S.shown=false;save();draw()};
-  app.appendChild(nb);
-  app.appendChild(el('p','round','كل واحد يدوس "جولة جديدة" في نفس الوقت، وتأكدوا إن رقم الجولة واحد عند التلاتة.'));
+  var again=el('button','big','روم جديد بنفس القسم');again.onclick=function(){newRoom(R.c)};app.appendChild(again);
+  app.appendChild(shareBox());
   var row=el('div','row');
-  var pb=el('button','ghost','جولة قبلها');pb.onclick=function(){if(S.r>1){S.r--;S.shown=false;save();draw()}};
-  var cb=el('button','ghost','غيّر اسمي');cb.onclick=function(){S.name=null;S.shown=false;save();draw()};
-  var kb=el('button','ghost','غيّر القسم');kb.onclick=function(){S.cat=null;S.shown=false;save();draw()};row.appendChild(kb);row.appendChild(pb);row.appendChild(cb);app.appendChild(row);
+  var hm=el('button','ghost','روم جديد بقسم تاني');hm.onclick=function(){location.hash=''};
+  var cn=el('button','ghost','غيّر اسمي');cn.onclick=function(){setName(R.seed,null);shown=false;draw()};
+  row.appendChild(hm);row.appendChild(cn);app.appendChild(row);
 }
+window.addEventListener('hashchange',function(){shown=false;draw()});
 draw();
 })();
 </script>
