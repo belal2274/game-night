@@ -31,10 +31,10 @@ button{font:inherit;color:inherit;cursor:pointer}
 <script>
 (function(){
 var NAMES=['بلال','فادي','محمد'];
-var WORDS=["🩲 الكلوت", "🩹 الألويز", "👙 البكيني", "🦿 الصناعي", "🐷 الخنزير", "🐶 الكلب", "🍝 كشري", "🫘 فول", "🧆 طعمية", "🥬 ملوخية", "🫑 محشي", "🥧 فطيرة", "🍢 كباب", "🌯 شاورما", "🍕 بيتزا", "🍟 بطاطس", "🍮 أم علي", "🍯 كنافة", "🍚 رز بلبن", "🍰 بسبوسة", "🐟 سمك", "🕴️ الزعيم", "🤪 اللمبي", "إسماعيلية رايح جاي", "الإرهاب والكباب", "🐘 الفيل الأزرق", "🦁 الأسد الملك", "🐭 توم وجيري", "🚢 تيتانيك", "🧙 هاري بوتر", "🕷️ سبايدرمان", "☀️ شمس", "عسكر في المعسكر", "صعيدي في الجامعة الأمريكية", "🏝️ الجزيرة", "ولاد رزق", "🦁 أسد", "🐘 فيل", "🦒 زرافة", "🐪 جمل", "🐴 حصان", "🐱 قطة", "🐊 تمساح", "🐍 ثعبان", "🐔 دجاجة", "🐄 بقرة", "🐑 خروف", "🫏 حمار", "🐵 قرد", "🐯 نمر", "🐻 دب", "🪑 كرسي", "🧊 تلاجة", "📱 تليفون", "🔑 مفتاح", "🪞 مراية", "🪭 مروحة", "🔩 مسمار", "🛏️ سرير", "⏰ ساعة", "👜 شنطة", "✂️ مقص", "🥄 ملعقة", "👓 نضارة", "🪥 فرشاة أسنان", "📺 تلفزيون", "🩴 شبشب", "🌴 نخلة", "🌹 وردة", "🌵 صبار", "🌿 نعناع", "🌼 ياسمين", "🌻 عباد الشمس", "🧅 بصل", "🍅 طماطم", "🥕 جزر", "🍌 موز", "🍊 برتقال", "🥭 مانجا", "🍉 بطيخ", "🍇 عنب", "🫒 زيتون"];
+var CATS={"الستة بتوعنا": ["🩲 الكلوت", "🩹 الألويز", "👙 البكيني", "🦿 الصناعي", "🐷 الخنزير", "🐶 الكلب"], "أكل": ["🍝 كشري", "🥘 فول", "🧆 طعمية", "🥬 ملوخية", "🫑 محشي", "🥧 فطيرة", "🍢 كباب", "🌯 شاورما", "🍕 بيتزا", "🍟 بطاطس", "🍮 أم علي", "🍯 كنافة", "🍚 رز بلبن", "🍰 بسبوسة", "🐟 سمك"], "أفلام": ["🕴️ الزعيم", "🤪 اللمبي", "إسماعيلية رايح جاي", "الإرهاب والكباب", "🐘 الفيل الأزرق", "🦁 الأسد الملك", "🐭 توم وجيري", "🚢 تيتانيك", "🧙 هاري بوتر", "🕷️ سبايدرمان", "☀️ شمس", "عسكر في المعسكر", "صعيدي في الجامعة الأمريكية", "🏝️ الجزيرة", "ولاد رزق"], "حيوانات": ["🦁 أسد", "🐘 فيل", "🦒 زرافة", "🐪 جمل", "🐴 حصان", "🐱 قطة", "🐊 تمساح", "🐍 ثعبان", "🐔 دجاجة", "🐄 بقرة", "🐑 خروف", "🐴 حمار", "🐵 قرد", "🐯 نمر", "🐻 دب"], "جمادات": ["🪑 كرسي", "🧊 تلاجة", "📱 تليفون", "🔑 مفتاح", "🪞 مراية", "🌀 مروحة", "🔩 مسمار", "🛏️ سرير", "⏰ ساعة", "👜 شنطة", "✂️ مقص", "🥄 ملعقة", "👓 نضارة", "🪥 فرشاة أسنان", "📺 تلفزيون", "🩴 شبشب"], "نباتات": ["🌴 نخلة", "🌹 وردة", "🌵 صبار", "🌿 نعناع", "🌼 ياسمين", "🌻 عباد الشمس", "🧅 بصل", "🍅 طماطم", "🥕 جزر", "🍌 موز", "🍊 برتقال", "🥭 مانجا", "🍉 بطيخ", "🍇 عنب", "🫒 زيتون"]};var CN=Object.keys(CATS);
 var SALT='de42263721f451b529654273';
 function h(str){var a=1779033703^str.length,b=3144134277,c=1013904242,d=2773480762;for(var i=0;i<str.length;i++){var k=str.charCodeAt(i);a=b^Math.imul(a^k,597399067);b=c^Math.imul(b^k,2869860233);c=d^Math.imul(c^k,951274213);d=a^Math.imul(d^k,2716044179)}a=Math.imul(c^(a>>>18),597399067);b=Math.imul(d^(b>>>22),2869860233);return (a^b^c^d)>>>0}
-function round(r){
+function round(r,c){var WORDS=CATS[CN[c]];
   var imp=h(SALT+':imp:'+r)%3;
   // word order: a salted shuffle so words don't repeat until all are used
   var idx=WORDS.map(function(_,i){return i});
@@ -43,9 +43,9 @@ function round(r){
   return {imp:imp,word:WORDS[idx[pos]]};
 }
 window.__round=round;
-var S={name:null,r:1,shown:false};
-try{var v=localStorage.getItem('imp.v2');if(v){var o=JSON.parse(v);S.name=o.name;S.r=o.r||1}}catch(e){}
-function save(){try{localStorage.setItem('imp.v2',JSON.stringify({name:S.name,r:S.r}))}catch(e){}}
+var S={name:null,r:1,cat:null,shown:false};
+try{var v=localStorage.getItem('imp.v2');if(v){var o=JSON.parse(v);S.name=o.name;S.r=o.r||1;S.cat=(o.cat==null?null:o.cat)}}catch(e){}
+function save(){try{localStorage.setItem('imp.v2',JSON.stringify({name:S.name,r:S.r,cat:S.cat}))}catch(e){}}
 var app=document.getElementById('app');
 function el(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e}
 function draw(){
@@ -56,11 +56,14 @@ function draw(){
     NAMES.forEach(function(n,i){var b=el('button','big','أنا '+n);b.onclick=function(){S.name=i;S.shown=false;save();draw()};app.appendChild(b)});
     return;
   }
-  var R=round(S.r),isImp=R.imp===S.name;
+  if(S.cat===null){
+    app.appendChild(el('h1',0,'اختار القسم'));app.appendChild(el('p',0,'اتفقوا في المكالمة على قسم واحد، وكل واحد يختاره.'));
+    CN.forEach(function(n,i){var b=el('button','big',n);b.onclick=function(){S.cat=i;S.shown=false;save();draw()};app.appendChild(b)});return;}
+  var R=round(S.r,S.cat),isImp=R.imp===S.name;
   app.appendChild(el('h1',0,'إنت '+NAMES[S.name]));
   app.appendChild(el('p',0,'ده دورك السري. متوريش الشاشة لحد.'));
   var top=el('div','row');
-  top.appendChild(el('span','round','الجولة رقم '+S.r));
+  top.appendChild(el('span','round','القسم: '+CN[S.cat]+' | الجولة رقم '+S.r));
   app.appendChild(top);
   if(!S.shown){var t=el('button','tap','اضغط عشان تشوف');t.onclick=function(){S.shown=true;draw()};app.appendChild(t)}
   else{
@@ -78,7 +81,7 @@ function draw(){
   var row=el('div','row');
   var pb=el('button','ghost','جولة قبلها');pb.onclick=function(){if(S.r>1){S.r--;S.shown=false;save();draw()}};
   var cb=el('button','ghost','غيّر اسمي');cb.onclick=function(){S.name=null;S.shown=false;save();draw()};
-  row.appendChild(pb);row.appendChild(cb);app.appendChild(row);
+  var kb=el('button','ghost','غيّر القسم');kb.onclick=function(){S.cat=null;S.shown=false;save();draw()};row.appendChild(kb);row.appendChild(pb);row.appendChild(cb);app.appendChild(row);
 }
 draw();
 })();
