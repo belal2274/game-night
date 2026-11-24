@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#14161c">
+<title>لعبة الإمبوستر</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%;background:#14161c;color:#f2f3f7;font-family:system-ui,-apple-system,"Segoe UI",Tahoma,Arial,sans-serif}
+main{max-width:480px;margin:0 auto;padding:28px 20px 40px;display:flex;flex-direction:column;gap:18px;min-height:100vh}
+h1{margin:0;font-size:28px}
+p{margin:0;color:#aab0c0;line-height:1.6}
+button{font:inherit;color:inherit;cursor:pointer}
+.big{min-height:68px;font-size:24px;border-radius:18px;border:1px solid #3a3f52;background:#1e212b}
+.big:active{background:#2a2e3b}
+.tap{min-height:170px;font-size:28px;border-radius:22px;border:2px dashed #5a6180;background:transparent;width:100%}
+.card{text-align:center;padding:30px 16px;border-radius:22px;background:#1e212b;border:1px solid #3a3f52}
+.label{color:#aab0c0;font-size:18px;margin-bottom:8px}
+.word{font-size:44px;font-weight:700;line-height:1.3;margin:0 0 6px}
+.imp{color:#ff6b6b}
+.ghost{background:transparent;border:1px solid #3a3f52;border-radius:12px;min-height:46px;padding:0 20px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+.round{font-size:15px;color:#aab0c0}
+.hide{display:none!important}
+</style>
+</head>
+<body>
+<main id="app"></main>
+<script>
+(function(){
+var NAMES=['بلال','فادي','محمد'];
+var WORDS=['الكلوت','الألويز','البكيني','الصناعي','الخنزير','الكلب','حفاضة','فوطة صحية','مشد بطن','صبغة شنب','لصقة ضد الشخير','مرهم بواسير','بودرة ريحة الجزمة','قطرة إمساك','شامبو قشرة','طقم أسنان','حمار','قرد','بطه','وزة','فرخة'];
+var SALT='de42263721f451b529654273';
+function h(str){var a=1779033703^str.length,b=3144134277,c=1013904242,d=2773480762;for(var i=0;i<str.length;i++){var k=str.charCodeAt(i);a=b^Math.imul(a^k,597399067);b=c^Math.imul(b^k,2869860233);c=d^Math.imul(c^k,951274213);d=a^Math.imul(d^k,2716044179)}a=Math.imul(c^(a>>>18),597399067);b=Math.imul(d^(b>>>22),2869860233);return (a^b^c^d)>>>0}
+function round(r){
+  var imp=h(SALT+':imp:'+r)%3;
+  // word order: a salted shuffle so words don't repeat until all are used
+  var idx=WORDS.map(function(_,i){return i});
+  var n=Math.floor((r-1)/WORDS.length),pos=(r-1)%WORDS.length;
+  for(var i=idx.length-1;i>0;i--){var j=h(SALT+':w:'+n+':'+i)%(i+1);var t=idx[i];idx[i]=idx[j];idx[j]=t}
+  return {imp:imp,word:WORDS[idx[pos]]};
+}
+window.__round=round;
+var S={name:null,r:1,shown:false};
+try{var v=localStorage.getItem('imp.v2');if(v){var o=JSON.parse(v);S.name=o.name;S.r=o.r||1}}catch(e){}
+function save(){try{localStorage.setItem('imp.v2',JSON.stringify({name:S.name,r:S.r}))}catch(e){}}
+var app=document.getElementById('app');
+function el(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e}
+function draw(){
+  app.innerHTML='';
+  if(S.name===null){
+    app.appendChild(el('h1',0,'لعبة الإمبوستر'));
+    app.appendChild(el('p',0,'اختار اسمك. كل واحد على موبايله.'));
+    NAMES.forEach(function(n,i){var b=el('button','big','أنا '+n);b.onclick=function(){S.name=i;S.shown=false;save();draw()};app.appendChild(b)});
+    return;
+  }
+  var R=round(S.r),isImp=R.imp===S.name;
+  app.appendChild(el('h1',0,'إنت '+NAMES[S.name]));
+  app.appendChild(el('p',0,'ده دورك السري. متوريش الشاشة لحد.'));
+  var top=el('div','row');
+  top.appendChild(el('span','round','الجولة رقم '+S.r));
+  app.appendChild(top);
+  if(!S.shown){var t=el('button','tap','اضغط عشان تشوف');t.onclick=function(){S.shown=true;draw()};app.appendChild(t)}
+  else{
+    var c=el('div','card');
+    c.appendChild(el('div','label',isImp?'إنت':'الكلمة بتاعتك'));
+    c.appendChild(el('div','word'+(isImp?' imp':''),isImp?'الإمبوستر!':R.word));
+    var hb=el('button','ghost','إخفاء');hb.onclick=function(){S.shown=false;draw()};c.appendChild(hb);
+    app.appendChild(c);
+  }
+  app.appendChild(el('p',0,'اسألوا بعض في المكالمة من غير ما تقولوا الكلمة نفسها.'));
+  var nb=el('button','big','جولة جديدة');
+  nb.onclick=function(){S.r++;S.shown=false;save();draw()};
+  app.appendChild(nb);
+  app.appendChild(el('p','round','كل واحد يدوس "جولة جديدة" في نفس الوقت، وتأكدوا إن رقم الجولة واحد عند التلاتة.'));
+  var row=el('div','row');
+  var pb=el('button','ghost','جولة قبلها');pb.onclick=function(){if(S.r>1){S.r--;S.shown=false;save();draw()}};
+  var cb=el('button','ghost','غيّر اسمي');cb.onclick=function(){S.name=null;S.shown=false;save();draw()};
+  row.appendChild(pb);row.appendChild(cb);app.appendChild(row);
+}
+draw();
+})();
+</script>
+</body>
+</html>
